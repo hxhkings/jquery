@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="pragma" content="no-cache">
+	<title>Monster Mashup</title>
+	<style>
+		#frame{
+			background-image: url("images/frame.png");
+			height: 629px;
+			width: 545px;
+			position: absolute;
+			top: 100px;
+			left: 100px;
+			overflow: hidden;
+			z-index:2;
+		}
+		
+		#pic_box{
+			position:relative;
+			height: 460px;
+			width: 367px;
+			overflow: hidden;
+			top: 84px;
+			left: 91px;
+			z-index:1;
+		}
+		.face{
+			position: relative;
+			left:0px;
+			top:0px;
+			z-index: 0;
+		} 
+		#head{
+			height:172px;
+		}
+		#eyes{
+			height:79px;
+		}
+		#nose{
+			height:86px;
+		}
+		#mouth{
+			height:117px;
+		}
+		#container{
+			position: absolute;
+			left:0px;
+			top:0px;
+			z-index:0;
+
+		}
+		.lightning{
+			display:none;
+			position:absolute;
+			left:0px;
+			top:0px;
+			z-index:0;
+		}
+		body{
+			background-color: #000000;
+		}
+		p{
+			color: #33ff66;
+			font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
+			font-size: 12px;
+		}
+		#text_top{
+			position: relative;
+			z-index: 4;
+			left: 222px;
+		}
+
+	</style>
+</head>
+<body>
+	<div id="game">
+	<header id="text_top"><img src="images/Monster_Mashup.png">
+	<button id="btnRandom">Randomize</button>
+	<button id="btnReset">Reset</button>
+	<p>Make your own monster face by clicking on the picture.</p></header>
+	<div id="container">
+		<img class="lightning" id="lightning1" src="images/lightning-01.jpg">
+		<img class="lightning" id="lightning2" src="images/lightning-02.jpg">
+		<img class="lightning" id="lightning2" src="images/lightning-03.jpg">
+		<div id="frame">
+			<div id="pic_box">
+				<div id="head" class="face"><img src="images/headsstrip.jpg"></div>
+				<div id="eyes" class="face"><img src="images/eyesstrip.jpg"></div>
+				<div id="nose" class="face"><img src="images/nosesstrip.jpg"></div>
+				<div id="mouth" class="face"><img src="images/mouthsstrip.jpg"></div>
+			</div>
+		</div>
+	</div>
+	</div>
+	<script src="scripts/jquery-3.2.0.min.js"></script>
+	<script>
+		$(document).ready(function(){
+			goLightning();
+			var clix = [0,0,0,0];
+			var int1, int2, int3;
+			var w = 367;
+			var m = 10;
+			window.onfocus = goLightning;
+			window.onblur = stopLightning;
+
+			$("#btnRandom").click(randomize);
+			$("#btnReset").click(reset);
+
+			function getRandom(num){
+				var my_random_num = Math.floor(Math.random() * num);
+				return my_random_num;
+			}
+			function randomize(){
+				$(".face").each(function(index){
+					var target_position = getRandom(m);
+					var current_position = clix[index];
+					clix[index] = target_position;
+					if(target_position > current_position){
+						var move_to = (target_position - current_position) * w;
+						$(this).animate({left:"-=" + move_to + "px"}, 500);
+					} else if(target_position < current_position){
+						var move_to = (current_position - target_position) * w;
+						$(this).animate({left:"+=" + move_to + "px"}, 500);
+					} else {
+
+					}
+				});
+			}
+			function reset(){
+				$(".face").each(function(index){
+					clix[index] = 0;
+					$(this).animate({left:"0px"}, 500);
+				});
+			}
+			function goLightning(){
+				int1 = setInterval(function(){
+					lightning_one();
+				}, 4000);
+				int2 = setInterval(function(){
+					lightning_two();
+				}, 5000);
+				int3 = setInterval(function(){
+					lightning_three();
+				}, 7000);
+			}
+			function stopLightning(){
+				clearInterval(int1);
+				clearInterval(int2);
+				clearInterval(int3);
+			}
+			$("#head").click(function(){
+				moveMe(0, this);
+			});
+			$("#eyes").click(function(){
+				moveMe(1, this);
+			});
+			$("#nose").click(function(){
+				moveMe(2, this);
+			});
+			$("#mouth").click(function(){
+				moveMe(3, this);
+			});
+			function moveMe(i, obj){
+				if(clix[i] < 9){
+					$(obj).animate({left:"-=367px"}, 500);
+					clix[i] += 1;
+				} else {
+					clix = 0;
+					$(obj).animate({left:"0px"}, 500);
+					
+				}
+		}
+		}); //end doc.ready function
+
+		function lightning_one(){
+			$("#container #lightning1").fadeIn(250).fadeOut(250);
+			
+		};
+		function lightning_two(){
+			$("#container #lightning2").fadeIn(250).fadeOut(250);
+			
+		};
+		function lightning_three(){
+			$("#container #lightning3").fadeIn(250).fadeOut(250);
+			
+		};
+
+
+	</script>
+</body>
+</html>

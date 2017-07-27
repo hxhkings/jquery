@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="pragma" content="no-cache">
+	<title>Submit Your Cryptid Sighting</title>
+	<link rel="stylesheet" type="text/css" href="jquery-ui-1.12.1.custom/jquery-ui.min.css">	
+	<link rel="stylesheet" type="text/css" href="jquery-ui-1.12.1.custom/jquery-ui.theme.min.css">
+	<link rel="stylesheet" type="text/css" href="jquery-ui-1.12.1.custom/jquery-ui.structure.min.css">
+	<style>
+		/*color slider styles*/
+		#slide-dist, #slide_weight, #slide_height{
+			margin-bottom:14px;
+		}
+		#swatch{
+			width:75px;
+			height:75px;
+			background-image:none;
+		}
+		header{
+			color:white;
+			background:#222222;
+			font-weight:bold;
+			padding: 5px;
+			border-top-right-radius: 10px;
+			border-top-left-radius: 10px;
+		}
+		button{
+			margin-top: 9px;
+		}
+		div#form{
+			width:1000px;
+			margin:auto;
+			background:#FFDDDD;
+			padding: 10px;
+			border-radius: 10px;
+		}
+		body{
+			background: #000;
+		}
+		div#type_select{
+			display:flex;
+			justify-content:center;
+		}
+		h2#location{
+			padding:5px;
+			border-bottom: 3px solid #222222;
+			border-top: 3px solid #222222;
+		}
+		div#data{
+			border-bottom: 3px solid #222222;
+		}
+		#red .ui-slider-range{background: #ef2929;}
+		#red .ui-slider-handle{border-color: #ef2929;}
+		#green .ui-slider-range{background: #8ae234;}
+		#green .ui-slider-handle{border-color: #8ae234;}
+		#blue .ui-slider-range{background: #729fcf;}
+		#blue .ui-slider-handle{border-color: #729fcf;}
+	</style>
+</head>
+<body>
+	<div id="form">
+	<header>
+		<h1>Submit Your Cryptid Sighting</h1>
+		<h3>Fill out the form below and click &ldquo;Enter&rdquo; to Submit</h3>
+	</header>
+	<div id="data"><h2>CRYPTID SIGHTING DATA</h2></div>
+	<form id="form" name="form" action="sightings.php" method="post">
+	<div>
+	<h3>Date of Sighting:</h3>
+		<input type="text" name="sighting_data" id="datepicker">
+	</div>
+	<h3>Creature Type:</h3>
+	<div id="type_select">
+		<input type="radio" id="radio1" name="creature_type">
+			<label for="radio1">Chupacabras</label>
+		<input type="radio" id="radio2" name="creature_type">
+			<label for="radio2">Jersey Devil</label>
+		<input type="radio" id="radio3" name="creature_type">
+			<label for="radio3">Loch Ness Monster</label>
+		<input type="radio" id="radio4" name="creature_type">
+			<label for="radio4">Sasquatch</label>
+		<input type="radio" id="radio5" name="creature_type">
+			<label for="radio5">Yeti</label>
+		<input type="radio" id="radio6" name="creature_type">
+			<label for="radio6">Other</label>
+	</div>
+	<h3>Distance from Creature (in ft.):</h3>
+	<input type="text" id="distance" class="just_display" name="creature_distance" readonly="readonly">
+		<div id="slide_dist"></div>
+	<h3>Creature Weight (in lbs.):</h3>
+	<input type="text" id="weight" class="just_display" name="creature_weight" readonly="readonly">
+		<div id="slide_weight"></div>
+	<h3>Creature Height (in ft.):</h3>
+	<input type="text" id="height" class="just_display" name="creature_height" readonly="readonly">
+		<div id="slide_height"></div>
+	
+	<h3>Color of Creature (use the color sliders to enter):</h3>
+
+	Color (in hexadecimal):<input type="text" class="just_display" name="creature_color" id="color_val" readonly="readonly"><br /><br />
+				<div id="swatch" class="ui-widget-content ui-corner-all"></div>
+
+	Red:<input type="text" class="just_display" name="creature_color" id="red_val" readonly="readonly">
+				<div id="red"></div>
+	Green:<input type="text" class="just_display" name="creature_color" id="green_val" readonly="readonly">
+				<div id="green"></div>
+	Blue:<input type="text" class="just_display" name="creature_color" id="blue_val" readonly="readonly">
+				<div id="blue"></div>
+	<h2 id="location">CRYPTID LOCATION DATA</h2>
+	<h3>Latitude of Sighting:</h3>
+	<input type="text" id="latitude" class="just_display" name="creature_latitude" readonly="readonly">
+		<div id="slide_lat"></div>
+	<h3>Longitude of Sighting:</h3>
+	<input type="text" id="longitude" class="just_display" name="creature_longitude" readonly="readonly">
+		<div id="slide_long"></div>
+	<button type="submit">Submit</button>
+	</form>
+	</div>
+	<script src="scripts/jquery-3.2.0.min.js"></script>
+	<script src="jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+
+	<script>
+		$(document).ready(function(){
+			$("#datepicker").datepicker({changeMonth:true, changeYear:true});
+			$("#type_select").buttonset();
+			$("#slide_dist").slider({
+				value:0,
+				min:0,
+				max:500,
+				step:10,
+				slide:function(event, ui){
+					$("#distance").val(ui.value);
+				}
+			});
+			$("#slide_weight").slider({
+				value:0,
+				min:0,
+				max:5000,
+				step:10,
+				slide:function(event, ui){
+					$("#weight").val(ui.value);
+				}
+			});
+			$("#slide_height").slider({
+				value:0,
+				min:0,
+				max:20,
+				step:1,
+				slide:function(event, ui){
+					$("#height").val(ui.value);
+				}
+			});
+			$("#slide_lat").slider({
+				value:0,
+				min:-90,
+				max:90,
+				step:0.00001,
+				slide:function(event, ui){
+					$("#latitude").val(ui.value);
+				}
+			});
+			$("#slide_long").slider({
+				value:0,
+				min:-180,
+				max:180,
+				step:0.00001,
+				slide:function(event, ui){
+					$("#longitude").val(ui.value);
+				}
+				
+			});
+			
+			$("#red, #green, #blue").slider({
+				orientation:"horizontal",
+				range:"min",
+				max:255,
+				value:127,
+				slide:refreshSwatch,
+				change:refreshSwatch
+			});
+			$("#red").slider("value", 127);
+			$("#green").slider("value", 127);
+			$("#blue").slider("value", 127);
+			$("button:submit").button();
+			function refreshSwatch(){
+			var red = $("#red").slider("value");
+			var green = $("#green").slider("value");
+			var blue = $("#blue").slider("value");
+			var my_rgb = "rgb(" + red + "," + green + "," + blue + ")";
+			$("#swatch").css("background-color", my_rgb);
+			$("#red_val").val(red);
+			$("#green_val").val(green);
+			$("#blue_val").val(blue);
+			$("#color_val").val(my_rgb);
+		}
+		});
+		
+	</script>
+
+
+
+	
+	
+</body>
+</html>

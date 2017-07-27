@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>A Bit to Byte Race Results Page</title>
+	<style>
+		body{
+			background-color: #000;
+			color: white;
+		}
+		/*Styles for tabs*/
+		#main{
+			color: #181818;
+			width: 600px;
+			margin: 8px auto;
+			color: #111;
+			padding: 15px 20px;
+			border: 1px solid #222;
+		}
+		#main > li, #main > ul > li{
+			list-style-type: none;
+			float: left;
+		}
+		#main ul a{
+			display: block;
+			padding: 6px 10px;
+			text-decoration: none!important;
+			margin: 1px 1px 1px 0;
+			color: #FFF;
+			background: #444;
+		}
+		#main ul a:hover{
+			color: #FFF;
+			background: #111;
+		}
+		#main ul a.selected{
+			margin-bottom: 0;
+			color: #000;
+			background: snow;
+			border-bottom: 1px solid snow;
+			cursor: default;
+		}
+		#main div{
+			padding: 10px 10px 8px 10px;
+			*padding-top: 3px;
+			*margin-top: -15px;
+			clear:left;
+			background: snow;
+			height: 300px;
+		}
+		#main div a{
+			color: #000;
+			font-weight: bold;
+		}
+		#btnStop:hover, #btnStart:hover{
+			border: 3px solid #0F0;
+			font-weight: bolder;
+
+		}
+		#btnStop, #btnStart{
+			box-sizing: border-box;
+			width: 150px;
+			height:25px;
+		}
+	</style>
+</head>
+<body>
+	<header>
+		<h2>2011 Race Finishers!</h2>
+	</header>
+	<div id="main">
+		<ul class="idTabs">
+			<li><a href="#male">Male Finishers</a></li>
+			<li><a href="#female">Female Finishers</a></li>
+			<li><a href="#all">All Finishers</a></li>
+			<li><a href="#new">Add New Finisher</a></li>
+		</ul>
+		<div id="male">
+			<h4>Male Finishers</h4>
+			<ul id="finishers_m"></ul>
+		</div>
+		<div id="female">
+			<h4>Female Finishers</h4>
+			<ul id="finishers_f"></ul>
+		</div>
+		<div id="all">
+			<h4>All Finishers</h4>
+				<ul id="finishers_all"></ul>
+		</div>
+		<div id="new">
+			<h4>Add New Finisher</h4>
+			<form id="addRunner" name="addRunner" action="service.php" method="POST">
+				First Name: <input type="text" name="txtFirstName" id="txtFirstName"> <br>
+				Last Name: <input type="text" name="txtLastName" id="txtLastName"> <br>
+				Gender: <select id="ddlGender" name="ddlGender">
+					<option value="">--Please Select</option>
+					<option value="f">Female</option>
+					<option value="m">Male</option>
+				</select><br>
+				Finish Time:
+				<input type="text" name="txtMinutes" id="txtMinutes" size="10" maxlength="2">(Minutes)
+				<input type="text" name="txtSeconds" id="txtSeconds" size="10" maxlength="2">(Seconds)
+				<br><br>
+				<button type="submit" name="btnSave" id="btnSave">Add Runner</button>
+				<input type="hidden" name="action" value="addRunner" id="action"> 
+			</form>
+		</div>
+	</div>
+	<footer>
+		<h4>Congratulations to all our finishers!</h4>
+		<button id="btnStart">Start Page Updates</button>
+		<button id="btnStop">Stop Page Updates</button>
+		<br>
+		<span id="freq"></span>
+		<br><br>
+		Last Updated: <div id="updatedTime"></div>
+	</footer>
+	<script src="scripts/jquery-3.2.0.min.js"></script>
+	<script src="scripts/jquery.idTabs.min.js"></script>
+	<script>
+		$(document).ready(function(){
+			var repeat = true;
+			var FREQ = 10000;
+			function startAJAXCalls(){
+				if(repeat){
+				setTimeout(function(){
+					getDBRacers();
+					startAJAXCalls();
+				}, FREQ);
+			}
+			}
+			$("#btnStop").click(function(){
+				repeat = false;
+				$("#freq").html("Updates paused");
+			});
+			$("#btnStart").click(function(){
+				repeat = true;
+				startAJAXCalls();
+				showFrequency();
+			});
+			$("#btnSave").click(function(){
+				var data = $("#addRunner:input").serializeArray();
+				$.post($("#addRunner").attr("action"), data, function(json){
+					if(json.status == "fail"){
+						alert(json.message);
+					} else if(json.status == "success"){
+						alert(json.message);
+						clearInputs();
+					}
+				}, "json");
+			});
+
+			function clearInputs(){
+				$("#addRunner:input").each(function(){
+					$(this).val("");
+				});
+
+			}
+			$("#addRunner").submit(function(){
+				return false;
+			});
+			function getDBRacers(){
+				$.getJSON("service.php?action=getRunners", function(json){
+					if(json.runners.length > 0){
+						$('#finishers_m').empty();
+						$('#finishers_f').empty();
+						$('#finishers_all').empty();
+						$.each(json.runners, function(){
+							var info = '<li>Name: ' + this['fname'] + " " + this['lname'] + " " + "Time: " + this['time'] + "</li>";
+							if(this['gender'] == 'm'){
+								$('#finishers_m').append(info);
+							} else if(this['gender'] == 'f'){
+								$('#finishers_f').append(info);
+							} else {}
+							$('#finishers_all').append(info);
+						});
+					}
+				});
+				getTimeAjax();
+			}
+			function getXMLRacers(){
+			$.ajax({
+				url: "finishers.xml",
+				cache: false,
+				dataType: "xml",
+				success: function(xml){
+					$("#finishers_m").empty();
+					$("#finishers_f").empty();
+					$("#finishers_all").empty();
+					$(xml).find("runner").each(function(){
+						var info = "<li>Name: " + $(this).find("fname").text() + " " + $(this).find("lname").text()
+						+ ", Time: " + $(this).find("time").text() + "</li>";
+						if($(this).find("gender").text() == "m"){
+							$("#finishers_m").append(info);
+						} else if($(this).find("gender").text() == "f"){
+							$("#finishers_f").append(info);
+						} else {}
+							$("#finishers_all").append(info);
+					}); //end xml each method
+					getTimeAjax();
+				}
+			});//end ajax method
+		}
+		function showFrequency(){
+			$("#freq").html("Page refreshes every " + FREQ/1000 + " second(s).");
+		}
+		function getTimeAjax(){
+			$("#updatedTime").load("time.php");
+		}
+			getXMLRacers();
+			startAJAXCalls();
+			function getTime(){
+				var a_p = "";
+				var d = new Date();
+				var curr_hour = d.getHours();
+				(curr_hour < 12) ? a_p = "AM": a_p = "PM";
+				(curr_hour == 0) ? curr_hour = 12: curr_hour = curr_hour;
+				(curr_hour > 12) ? curr_hour -= 12: curr_hour = curr_hour;
+				var curr_min = d.getMinutes().toString();
+				var curr_sec = d.getSeconds().toString();
+				if(curr_min.length == 1) {
+					curr_min = "0" + curr_min;
+				}
+				if(curr_sec.length == 1){
+					curr_sec = "0" + curr_sec;
+				}
+				$("#updatedTime").html(curr_hour + ":" + curr_min + ":" + curr_sec + " " + a_p);
+			}
+		}); //end document.ready
+	</script>
+</body>
+</html>
